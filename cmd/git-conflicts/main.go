@@ -25,6 +25,7 @@ func main() {
 
 	params := url.Values{}
 	params.Set("state", "open")
+	params.Set("per_page", "100")
 	u := url.URL{
 		Scheme:   host.Protocol,
 		Host:     host.Host,
