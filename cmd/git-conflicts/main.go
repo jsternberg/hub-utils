@@ -5,12 +5,22 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/github/hub/github"
 	"github.com/github/hub/utils"
+	flag "github.com/spf13/pflag"
 )
 
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, `Usage: git-conflicts
+
+List pull requests that have a conflict and are owned by the current user in the current repository.
+`)
+	}
+	flag.Parse()
+
 	localRepo, err := github.LocalRepo()
 	utils.Check(err)
 

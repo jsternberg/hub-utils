@@ -4,14 +4,24 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/github/hub/github"
 	"github.com/github/hub/utils"
+	flag "github.com/spf13/pflag"
 )
 
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, `Usage: git-rate-limit
+
+List the current rate limit information for the current user account.
+`)
+	}
+	flag.Parse()
+
 	localRepo, err := github.LocalRepo()
 	utils.Check(err)
 
