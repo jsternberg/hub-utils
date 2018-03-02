@@ -13,7 +13,10 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-var reReflogCommitMessage = regexp.MustCompile(`^checkout: moving from ([^\s]+) to ([^\s]+)$`)
+var (
+	reReflogCheckoutMessage = regexp.MustCompile(`^checkout: moving from ([^\s]+) to ([^\s]+)$`)
+	reReflogRenameMessage   = regexp.MustCompile(`^Branch: renamed refs/heads/([^\s]+) to refs/heads/([^\s]+)$`)
+)
 
 type CheckoutEvent struct {
 	From, To string
@@ -49,7 +52,7 @@ func listBranches() (map[string]struct{}, error) {
 }
 
 func reflogMessages(ctx context.Context) (<-chan CheckoutEvent, error) {
-	cmd := exec.Command("git", "log", "-g", "--grep-reflog=checkout: moving from", "--pretty=format:%gs")
+	cmd := exec.Command("git", "log", "-g", "--grep-reflog=checkout: moving from", "--grep-reflog=Branch: renamed", "--pretty=format:%gs")
 	out, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, err
@@ -57,6 +60,17 @@ func reflogMessages(ctx context.Context) (<-chan CheckoutEvent, error) {
 
 	if err := cmd.Start(); err != nil {
 		return nil, err
+	}
+
+	renames := make(map[string]string)
+	getName := func(s string) string {
+		for {
+			alias, ok := renames[s]
+			if !ok {
+				return s
+			}
+			s = alias
+		}
 	}
 
 	ch := make(chan CheckoutEvent, 100)
@@ -69,15 +83,21 @@ func reflogMessages(ctx context.Context) (<-chan CheckoutEvent, error) {
 		// Scan the output from the log.
 		scanner := bufio.NewScanner(out)
 		for scanner.Scan() {
-			m := reReflogCommitMessage.FindStringSubmatch(scanner.Text())
+			m := reReflogRenameMessage.FindStringSubmatch(scanner.Text())
+			if m != nil {
+				renames[m[1]] = m[2]
+				continue
+			}
+
+			m = reReflogCheckoutMessage.FindStringSubmatch(scanner.Text())
 			if m == nil {
 				continue
 			}
 
 			select {
 			case ch <- CheckoutEvent{
-				From: m[1],
-				To:   m[2],
+				From: getName(m[1]),
+				To:   getName(m[2]),
 			}:
 			case <-ctx.Done():
 				return
