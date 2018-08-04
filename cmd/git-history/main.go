@@ -85,6 +85,7 @@ func reflogMessages(ctx context.Context) (<-chan CheckoutEvent, error) {
 		for scanner.Scan() {
 			m := reReflogRenameMessage.FindStringSubmatch(scanner.Text())
 			if m != nil {
+				delete(renames, m[2])
 				renames[m[1]] = m[2]
 				continue
 			}
