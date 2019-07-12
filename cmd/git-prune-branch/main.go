@@ -47,7 +47,7 @@ Delete the branches that have been merged into the target branch.
 	flag.Parse()
 
 	defaultBranch := getDefaultBranch()
-	cmd := exec.Command("git", "branch", "--merged", defaultBranch)
+	cmd := exec.Command("git", "branch", "--no-column")
 	out, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: Could not create pipe: %s\n", err)
