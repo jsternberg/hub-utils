@@ -12,6 +12,8 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
+const GitHubApiHost = "api.github.com"
+
 func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `Usage: git-conflicts
@@ -43,7 +45,7 @@ List pull requests that have a conflict and are owned by the current user in the
 		RawQuery: params.Encode(),
 	}
 	if u.Host == github.GitHubHost {
-		u.Host = github.GitHubApiHost
+		u.Host = GitHubApiHost
 	}
 	req, _ := http.NewRequest("GET", u.String(), nil)
 	req.Header.Set("User-Agent", github.UserAgent)

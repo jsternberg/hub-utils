@@ -13,6 +13,8 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
+const GitHubApiHost = "api.github.com"
+
 func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `Usage: git-rate-limit
@@ -40,7 +42,7 @@ List the current rate limit information for the current user account.
 		Path:   fmt.Sprintf("/rate_limit", project.Owner, project.Name),
 	}
 	if u.Host == github.GitHubHost {
-		u.Host = github.GitHubApiHost
+		u.Host = GitHubApiHost
 	}
 	req, _ := http.NewRequest("GET", u.String(), nil)
 	req.Header.Set("User-Agent", github.UserAgent)
