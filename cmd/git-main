@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+if git rev-parse master &> /dev/null; then
+	git checkout master && exit 0
+fi
+git checkout main

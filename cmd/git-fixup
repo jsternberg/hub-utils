@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -eo pipefail
+
+base_branch=$(hub pr show -f '%B')
+merge_base=$(git merge-base "$base_branch" HEAD)
+fixup_commit=$(git rev-list "$merge_base..HEAD" | tail -n 1)
+git commit --fixup "$fixup_commit" --edit "$@"

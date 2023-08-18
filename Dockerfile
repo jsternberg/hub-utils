@@ -25,3 +25,5 @@ RUN --mount=target=. \
 FROM scratch AS binaries
 COPY --link --from=git-history /usr/bin/git-history /
 COPY --link --from=git-prune-branch /usr/bin/git-prune-branch /
+COPY --link ./cmd/git-main /
+COPY --link ./cmd/git-fixup /
